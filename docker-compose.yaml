@@ -1,0 +1,54 @@
+services:
+
+  joomla:
+    image: joomla
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      JOOMLA_DB_HOST: db
+      JOOMLA_DB_USER: ${DB_USER}
+      JOOMLA_DB_PASSWORD: ${DB_PASSWORD}
+      JOOMLA_DB_NAME: ${DB_NAME}
+      JOOMLA_SITE_NAME: ${SITE_NAME}
+      JOOMLA_ADMIN_USER: ${ADMIN_USER}
+      JOOMLA_ADMIN_USERNAME: ${ADMIN_USERNAME}
+      JOOMLA_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      JOOMLA_ADMIN_EMAIL: ${ADMIN_EMAIL}
+    volumes:
+      # - joomla_data:/var/www/html
+      - :/var/www/html
+    networks:
+      - joomla_network
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - joomla_network
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      # - PMA_ARBITRARY=1
+      - PMA_HOST=localhost
+      - PMA_PORT=
+    networks:
+      - joomla_network
+
+volumes:
+  # joomla_data:
+  db_data:
+
+networks:
+  joomla_network:
