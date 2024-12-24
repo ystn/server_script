@@ -6,7 +6,7 @@ services:
     ports:
       - 8080:80
     environment:
-      JOOMLA_DB_HOST: db
+      JOOMLA_DB_HOST: joomla_db
       JOOMLA_DB_USER: ${DB_USER}
       JOOMLA_DB_PASSWORD: ${DB_PASSWORD}
       JOOMLA_DB_NAME: ${DB_NAME}
@@ -16,12 +16,12 @@ services:
       JOOMLA_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       JOOMLA_ADMIN_EMAIL: ${ADMIN_EMAIL}
     volumes:
-      # - joomla_data:/var/www/html
-      - :/var/www/html
+      - joomla_data:/var/www/html
+      # - :/var/www/html
     networks:
       - joomla_network
 
-  db:
+  joomla_db:
     image: mysql:8.0
     restart: always
     environment:
@@ -39,16 +39,51 @@ services:
     restart: always
     ports:
       - 8081:80
-    environment:
+    # environment:
       # - PMA_ARBITRARY=1
-      - PMA_HOST=localhost
-      - PMA_PORT=
+      # - PMA_HOST=localhost
+      # - PMA_PORT=
     networks:
       - joomla_network
+    links:
+      - joomla_db:db
+
+  glpi_db:
+    image: mariadb:10.7
+    container_name: mariadb
+    hostname: mariadb
+    volumes:
+      - glpi_database:/var/lib/mysql
+    # env_file:
+      # - ./mariadb.env
+    restart: always
+    networks:
+      - glpi_network
+
+  glpi:
+    image: diouxx/glpi
+    container_name : glpi
+    hostname: glpi
+    ports:
+      - "8082:80"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      # - /var/www/html/glpi/:/var/www/html/glpi
+    environment:
+      - TIMEZONE=Europe/Brussels
+    restart: always
+    networks:
+      - glpi_network
+    links:
+      - glpi_db:mariadb
 
 volumes:
-  # joomla_data:
+  joomla_data:
   db_data:
+  glpi_data:
+  glpi_database:
 
 networks:
   joomla_network:
+  glpi_network:

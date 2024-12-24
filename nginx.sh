@@ -13,10 +13,6 @@ ln -s /etc/nginx/sites-available/$DOMAIN_NAME.conf /etc/nginx/sites-enabled/
 
 systemctl restart nginx
 
-snap install --classic certbot
-certbot --version
-certbot --nginx -d $DOMAIN_NAME --agree-tos
-
 ufw allow 80/tcp
 ufw allow 443/tcp
 ufw status
